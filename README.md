@@ -8,8 +8,9 @@ TOC:
 | [Santa's Giftshopper](#santas-giftshopper)        | `ppc`       | 100    |
 | [Santa Customer Support](#santa-customer-support) | `web`       | 100    |
 | [Wishes](#wishes)                                 | `pwn`       | 75     |
+| [Reinder](#reinder)                               | `web`       | 175    |
 
-Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that were not solved all the way through.
+Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that I did not solve all the way through.
 
 ## Happy New Maldoc
 
@@ -400,7 +401,11 @@ int main(void) {
 }
 ```
 
-We interact with the code via netcat to get the flag. Lets examine this code!
+We interact with the code via netcat to get the flag. 
+
+This challenge is very basic but is a good intro to an important concept called **Buffer Overflow**.
+
+Lets examine this code!
 
 ```c
 typedef struct locals {
@@ -427,4 +432,62 @@ We are doing: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAadmin`.
 
 Looks like we got the flag! 
 
-*Note: cannot show flag since service is no longer available
+*Note: Don't have the flag since service is no longer available, but the solution works!
+
+## Reinder
+
+>   #### CHALLENGE INFORMATION
+>
+>   Meet reindeer in your area!
+
+I just noticed Reindeer is spelled wrong in this challenge title XD. Overall these challenges were super easy but still would be fun to look at since people who are just starting might not know what to do.
+
+### SANTA'S PROFILE (25 POINTS)
+
+Looks like this website is like Tinder for Reindeer haha. There is a tab called `Match` that has profiles of reindeer in the area. The URL has `/Match/Profile/10`. If we click match again we get `/Match/Profile/12`. So it looks like each profile has an id that is really simple to get. So going through each number we quickly find that santa is at `/Match/Profile/5`. Not much to it. 
+
+Flag: CTF{c5c361579ec42b4895b7c6b56bcd24f4}
+
+### PACKED (25 POINTS)
+
+If you check the Sources tab in inspect element you notice that something called `my-webpack-project` is showing as well as the production project. This is a good indication that the local source was leaked. If you check resources in it you find a folder called `./src` which contains index.js. The flag is in the comments of this file.
+
+Flag: CTF{7f8d509e25cd0ac7d68c20003460cd17}
+
+### ROBOTIC BACKUPS (25 POINTS)
+
+Robotic makes me think `robots.txt`. Yup, at `/robots.txt` we get:
+
+```
+User-agent: *
+# make sure profiles are not index 
+Disallow: /Match/Profile/*
+# better not tell people where our backups are located
+Disallow: /DataBackup.zip
+```
+
+We download the zip file by going to `/DataBackup.zip`. After unzipping this file we see there is a file called flag.txt.
+
+Flag: CTF{5840e3cad9668343768ae1da4d1bd2fe}
+
+### ADMIN (25 POINTS)
+
+Open up inspect element and poke around. When I was checking cookies, I found that there is a cookie called `IsAdmin` set to `false`. In google chrome there is an extension called EditThisCookie that does exactly that. With that I just set it to say `true` instead and voila! We are now admin (make sure you go back to one of the pages so that the effects take place).
+
+Flag:  CTF{8cff98c37e2dc4965ca272a89b297e42}
+
+### SANTA'S LOCATION (50 POINTS)
+
+This one was painful. Really just guess and check until find the exact coordinates of Santa's Location. You can tell you are narrowing in by simply checking Santa's profile from the first challenge (it tells you how far away you are from santa. I found that Latitude of 65.395 and Longitude of -20.942 was 9 meters away. I figured that the street name wouldn't be anything crazy so the flag was Brekkugata.
+
+Flag: Brekkugata
+
+### CVE (25 POINTS)
+
+The challenge gives:
+
+>   The website is using a vulnerable JavaScript library related to an injection into "HTML option elements" ... can you tell us the CVE number? Flag format: CVE-xxxx-xxxxx
+
+So, I literally just googled `HTML option elements javascript library cve` and it was the first result. It sounded like it would be related which is what clued me in.
+
+Flag: [CVE-2020-11023](https://github.com/advisories/GHSA-jpcq-cgw6-v4j6)
