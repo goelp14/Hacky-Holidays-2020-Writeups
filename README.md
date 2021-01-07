@@ -55,7 +55,7 @@ ErrorHandler:
 End Sub
 ```
 
-`MsgBox` means that a pop up will display some text. This is the only code snippet that has the popup so most likely the flag is one of these popups. Unfortunately it looks like it is hidden behind some kind of encryption (based on the existence of `Dec()`). Now, I _could_ try and break the encryption, but eh that seems like a lot of effort (or simply _some_ effort for that matter). The quickest thing to notice is there is an if statement:
+Note that `MsgBox` means that a pop up will display some text and that you can think of `Sub` as a function.  This is the only code snippet that has the popup so most likely the flag is one of these popups. Unfortunately it looks like it is hidden behind some kind of encryption (based on the existence of `Dec()`). Now, I _could_ try and break the encryption, but eh that seems like a lot of effort (or simply _some_ effort for that matter). The quickest thing to notice is there is an if statement:
 
 ```vbscript
 If sHN = Dec("E2Q/yB8spwQ=", cap)
@@ -84,3 +84,5 @@ Since that's what the if statement is looking for. After saving this updated mac
 ![maldoc_flag](./images/maldoc_flag.png)
 
 *Flag is: CTF{im_a_maldoc_pro}*
+
+It seems like the idea of the challenge was to introduce the ideas that macros can be harmful to your computer since they can just execute locally. I'm not sure if the authors were intending that it is solved via encryption but I am always a fan of the solution that requires less effort.
