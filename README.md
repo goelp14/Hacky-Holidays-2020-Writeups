@@ -4,7 +4,7 @@ TOC:
 
 | Name                                                     | Category    | Points |
 | -------------------------------------------------------- | ----------- | ------ |
-| [Happy New Maldoc](#Happy New Maldoc (WISHES))           | `reversing` | 125    |
+| [Happy New Maldoc](#happy-new-maldoc-(wishes))           | `reversing` | 125    |
 | [Santa's Giftshopper](#Santa's Giftshopper (NOTEKEEPER)) | `ppc`       | 100    |
 |                                                          |             |        |
 
