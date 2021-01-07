@@ -105,3 +105,89 @@ It seems like the idea of the challenge was to introduce the ideas that macros c
 >
 >   Santa lost his notebook, can you keep notes for him while shopping for Christmas presents?
 
+We are given a URL to some tcp connection. You can access the service by using netcat as follows: ` nc <service-url> <port>`. Make sure you do NOT include the `tcp://`. You should be greeted with the following in your console:
+
+![giftshopper_start](./images/giftshopper_start.png)
+
+If you type `n` and press enter it prints out another line with the same message. It looks like this will happen 1000 times since it asks "Can you keep track of the 1000 children's wishes". I really do not want to manually go through this so let's try automating it! I like using a python package called `pwntools` to interact as if its netcat but I believe there are several other packages that would also work. In this case I first want to keep going through each 1000 child's wish and save that somehow to look through. This is so that I can get an idea of whats happening with each wish and all the items that are being wished for. The code I used for that can be found here: https://gist.github.com/goelp14/9c5810894045813b22ede6a2eca4e23d.
+
+After going through the output file I found that there were 10 gifts that the children wished for. They were
+
+-   racecar
+-   mouse
+-   book
+-   kitten
+-   binoculars
+-   crayons
+-   console
+-   doll
+-   guitar
+-   puzzle
+
+Now before we do anything else, its a good idea to see what we get after going through all 1000 wishes. As a result added extra lines:
+
+```python
+r.send(b'n\n')
+print(r.recvuntil(b'\n\n'))
+print(r.recvuntil(b' > '))
+```
+
+This is because I needed to send an n to get the next bit of text and it was a pretty good bet that I will get text until two back to back newlines or a `>` (since it indicates to input something). I did both in case one would be incorrect. I got lucky and they both worked:
+
+>   I think we've got them all for this year!
+>
+>   Have you remembered all the presents we should buy?
+>
+>   
+>
+>   How many binoculars should we get? > 
+
+This makes it pretty clear that I need to be counting all the items and then entering in the correct number of wishes based on the item prompted. I could have used the `output.txt` generated but I felt like that would actually be too much effort. I figured that I could keep track as it goes through each wish. I decided a really easy way to do this is using a dictionary since I can just check if the key value is used in the sentence and update the corresponding count as it goes.
+
+I did this with the following code snippet (look at comments):
+
+```python
+from pwn import *
+
+saveNotebook = []
+r = remote('<TCP-URL-HERE-NO-TCP://-INCLUDED>', <PORT>)
+r.recvuntil('rounds?\n\n')
+f = open("output.txt", "w+")
+output = r.recvuntil('..> ')
+items = {'racecar': 0, 'mouse': 0, 'book': 0, 'kitten': 0, 'binoculars': 0, 'crayons': 0, 'console': 0, 'doll': 0, 'guitar': 0, 'puzzle': 0} # initialize dictionary with each gift set to 0
+f.write(output.decode('utf-8'))
+s = output.split(b'\nSend') # The relevant info is before \nSend so the split is used to isolate that string
+s = s[0].decode("utf-8") # convert to string for easier use
+s = s.strip('\n') # get rid of any \n in case I want to print for debugging
+# Iterate through each key in the dictionary and check if it is in the wish
+# If it is, then update that key value by adding 1 to the count
+for item in items.keys():
+        if item in s:
+            items[item] += 1
+```
+
+Now, after going through all 1000 wishes I should have the number of times each item was wished for. I now just have to answer each question on how many of each item to get which can be done with a similar method as in the previous code snippet.
+
+```python
+q = r.recvuntil(b' > ') # get the question
+print(q) # print for reference
+keyword = q.split(b' ')[2].decode("utf-8") # make into an array of words and take the third word since it follows the format 'How many <keyword> should we get?'
+print("Keyword is %s\n" % keyword) # print for reference
+print('Number of times Asked: %s' % items[keyword]) # print for reference
+print(str(items[keyword]).encode('ascii')) # print for reference
+r.send(str(items[keyword]).encode('ascii')) # send the resulting count of the item encoded since it only takes byte string
+r.send(b'\n') # submit answer
+```
+
+After reading the next line with another `q = r.recvuntil(b' > ')`, it becomes clear that the format of the questions are most likely going to be the same.  Since there are 10 items I probably will have to do this 10 times for each item. So now all I have to do is throw the above code into a for loop and boom done. I ran this code but, no flag? I then realize that I never actually received what comes after so the flag would not be printed. Since the format of the flag is `CTF{}`, I figured I could just take everything up until `}` and the flag should be in the printout.
+
+You can see my full code here: https://gist.github.com/goelp14/1fe50273b86ca305c7b4a51f0b39beba
+
+The resulting printout at the end is:
+
+>   Awesome! Thanks to you everyone will get their desired gift!
+>
+>   Here's a flag to thank you! CTF{S4nt4-H4s-4-B4d-M3m0ry}
+
+Flag: CTF{S4nt4-H4s-4-B4d-M3m0ry}
+
