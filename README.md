@@ -1,8 +1,16 @@
 # Hacky-Holidays-2020-Writeups
 
-[TOC]
+TOC:
 
-## Happy New Maldoc
+| Name                                                     | Category    | Points |
+| -------------------------------------------------------- | ----------- | ------ |
+| [Happy New Maldoc](#Happy New Maldoc (WISHES))           | `reversing` | 125    |
+| [Santa's Giftshopper](#Santa's Giftshopper (NOTEKEEPER)) | `ppc`       | 100    |
+|                                                          |             |        |
+
+
+
+## Happy New Maldoc (WISHES)
 
 >   #### CHALLENGE INFORMATION
 >
@@ -86,3 +94,10 @@ Since that's what the if statement is looking for. After saving this updated mac
 *Flag is: CTF{im_a_maldoc_pro}*
 
 It seems like the idea of the challenge was to introduce the ideas that macros can be harmful to your computer since they can just execute locally. I'm not sure if the authors were intending that it is solved via encryption but I am always a fan of the solution that requires less effort.
+
+## Santa's Giftshopper (NOTEKEEPER)
+
+>   #### CHALLENGE INFORMATION
+>
+>   Santa lost his notebook, can you keep notes for him while shopping for Christmas presents?
+
