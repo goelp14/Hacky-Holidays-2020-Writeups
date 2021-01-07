@@ -2,11 +2,11 @@
 
 TOC:
 
-| Name                                        | Category    | Points |
-| ------------------------------------------- | ----------- | ------ |
-| [Happy New Maldoc](#happy-new-maldoc)       | `reversing` | 125    |
-| [Santa's Giftshopper](#santa's-giftshopper) | `ppc`       | 100    |
-|                                             |             |        |
+| Name                                       | Category    | Points |
+| ------------------------------------------ | ----------- | ------ |
+| [Happy New Maldoc](#happy-new-maldoc)      | `reversing` | 125    |
+| [Santa's Giftshopper](#santas-giftshopper) | `ppc`       | 100    |
+|                                            |             |        |
 
 
 
