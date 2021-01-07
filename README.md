@@ -301,7 +301,7 @@ def msg():
     return jsonify(random.choice(rnd))
 ```
 
-Now this is more interesting. There is an argument called `methods` indicating that this is a POST request. What this means is that I can **send** data to the route in order for something to happen. This particular code looks like it stores the data sent into a variable called `msg`. The if statement indicates that if this message starts with `voucher` then it will take the next word as the input to a different function. This "word" can be anything (numbers, letters, etc.). Otherwise it will simply choose a response based on a keyword or something random (refer to variables `keywords` and `rnd`). Ok so lets check out that `procces()` function since that looks suspicious.
+Now this is more interesting. There is an argument called `methods` indicating that this is a POST request. What this means is that I can **send** data to the route in order for something to happen. This particular code looks like it stores the data sent into a variable called `msg`. The if statement indicates that if this message starts with `voucher` then it will take the next word as the input to a different function. This "word" can be anything (numbers, letters, etc.). Otherwise it will simply choose a response based on a keyword or something random (refer to variables `keywords` and `rnd`). Ok so lets check out that process()` function since that looks suspicious.
 
 ```python
 # Santa is a micro-services kind of guy so the voucher
@@ -357,7 +357,13 @@ Waiiiiiiiiit a moment. This looks really close to some valid JSON. Maybe I can p
 
 ![voucher_flag](./images/voucher_flag.png)
 
-Yay! We got the flag!
+Yay! We got the flag! This worked because now we are sending a POST request formatted as
+
+```
+{\"action\": \"redeemVoucher\", \"voucherCode\": \"garbagenobodycaresabout\", \"action\": \"health\"}
+```
+
+Essentially the voucher code is still being set to something so no error happens but we also are able to append another action to the POST request as well. It is this action that returning the status of OK so that we can get the flag.
 
 Flag: CTF{766e0ca1}
 
