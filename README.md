@@ -10,7 +10,7 @@ TOC:
 | [Wishes](#wishes)                                 | `pwn`       | 75     |
 | [Reinder](#reinder)                               | `web`       | 175    |
 
-Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that I did not solve all the way through.
+Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that I did not solve all the way through. There were some really cool IoT, Reversing, Networking, and Forensics challenges I would have loved to include otherwise. Thank you Deloitte for hosting an awesome CTF!
 
 ## Happy New Maldoc
 
