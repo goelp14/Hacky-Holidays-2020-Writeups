@@ -484,7 +484,7 @@ Flag:  CTF{8cff98c37e2dc4965ca272a89b297e42}
 
 ### SANTA'S LOCATION (50 POINTS)
 
-This one was painful. Really just guess and check until find the exact coordinates of Santa's Location. You can tell you are narrowing in by simply checking Santa's profile from the first challenge (it tells you how far away you are from santa. I found that Latitude of 65.395 and Longitude of -20.942 was 9 meters away. I figured that the street name wouldn't be anything crazy so the flag was Brekkugata.
+This one was painful. Really just guess and check until find the exact coordinates of Santa's Location. You can tell you are narrowing in by simply checking Santa's profile from the first challenge (it tells you how far away you are from santa). I found that Latitude of 65.395 and Longitude of -20.942 was 9 meters away. I figured that the street name wouldn't be anything crazy so the flag was Brekkugata.
 
 Flag: Brekkugata
 
