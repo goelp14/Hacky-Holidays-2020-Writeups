@@ -7,6 +7,7 @@ TOC:
 | [Happy New Maldoc](#happy-new-maldoc)             | `reversing` | 125    |
 | [Santa's Giftshopper](#santas-giftshopper)        | `ppc`       | 100    |
 | [Santa Customer Support](#santa-customer-support) | `web`       | 100    |
+| [Wishes](#wishes)                                 | `pwn`       | 75     |
 
 Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that were not solved all the way through.
 
@@ -358,3 +359,72 @@ Waiiiiiiiiit a moment. This looks really close to some valid JSON. Maybe I can p
 Yay! We got the flag!
 
 Flag: CTF{766e0ca1}
+
+## Wishes
+
+### WISHES
+
+>   #### CHALLENGE INFORMATION
+>
+>   Tell Santa your name and he might give you a flag for Christmas!
+
+We are provided a c file: 
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct locals {
+	char username[50];
+	char role[10];
+} locals;
+
+int main(void) {
+	locals config;
+	strcpy(config.role, "user");
+
+	setbuf(stdout, NULL);
+
+	printf("Enter your name: ");
+	scanf("%s", config.username);
+
+	printf("Hello, %s!\n", config.username);
+	printf("Role: %s\n", config.role);
+
+
+	if (strcmp(config.role, "admin") == 0) {
+		printf("Flag: %s\n", getenv("FLAG"));
+	} else {
+		puts("Access denied.");
+	}
+}
+```
+
+We interact with the code via netcat to get the flag. Lets examine this code!
+
+```c
+typedef struct locals {
+	char username[50];
+	char role[10];
+} locals;
+```
+
+Firstly we see a struct named locals that contains two char arrays called username and role with 50 characters and 10 characters allocated to each array respectively. Now, since this is C we know this means that in memory a block 60 bytes (50 + 10 bytes) are being allocated for use when locals is initialized. We see that in the main code that `role` is automatically being set to `user`. However, we need the role to be `admin` if we want to get the flag. We are able to enter in something to `username` but not `role`. This has all the makings of **Buffer Overflow** in its simplest form. Basically we are trying to write in more bytes than what is allocated to memory for username. We can visualize it like this:
+
+| ---- Username ---- | ---- Role ---- |
+
+We know that 50 bytes are allocated for username so we just have to type 50 letters to fill those spots up. 
+
+So we have
+
+| A * 50 | ---- Role ---- |
+
+Now, if we type `admin` right after it should be writing what we want into the `role` array instead! 
+
+| A * 50 | admin |
+
+We are doing: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAadmin`.
+
+Looks like we got the flag! 
+
+*Note: cannot show flag since service is no longer available
