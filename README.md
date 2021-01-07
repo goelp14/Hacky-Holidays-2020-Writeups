@@ -13,7 +13,7 @@ Note that I am only providing writeups of challenges I completely solved. A lot 
 
 ## Happy New Maldoc
 
-### WISHES
+### WISHES (Actual Challenge Name)
 
 >   #### CHALLENGE INFORMATION
 >
