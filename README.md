@@ -2,13 +2,13 @@
 
 TOC:
 
-| Name                                       | Category    | Points |
-| ------------------------------------------ | ----------- | ------ |
-| [Happy New Maldoc](#happy-new-maldoc)      | `reversing` | 125    |
-| [Santa's Giftshopper](#santas-giftshopper) | `ppc`       | 100    |
-|                                            |             |        |
+| Name                                              | Category    | Points |
+| ------------------------------------------------- | ----------- | ------ |
+| [Happy New Maldoc](#happy-new-maldoc)             | `reversing` | 125    |
+| [Santa's Giftshopper](#santas-giftshopper)        | `ppc`       | 100    |
+| [Santa Customer Support](#santa-customer-support) | `web`       | 100    |
 
-
+Note that I am only providing writeups of challenges I completely solved. A lot of them contained multiple parts that were not solved all the way through.
 
 ## Happy New Maldoc
 
@@ -191,3 +191,170 @@ The resulting printout at the end is:
 
 Flag: CTF{S4nt4-H4s-4-B4d-M3m0ry}
 
+## Santa Customer Support
+
+### RECOVER YOUR LOST GIFT
+
+>   #### CHALLENGE INFORMATION
+>
+>   Did you lose any gifts and need to find it again? We offer customer support!
+
+We are given a URL that shows:
+
+![santa_cs](./images/santa_cs.png)
+
+Looks like it is a customer support chat! Thankfully it looks like Santa decided to make the his code open source so after clicking on it we get:
+
+```python
+import sys, os
+from flask import Flask, render_template, request, jsonify
+import random
+import backend_api
+
+app = Flask(__name__)
+flag = os.environ['FLAG']
+
+@app.route("/")
+def index():
+    return render_template("chat.html")
+
+keywords = {
+        ('gift', 'present'): 'If you are contacting us regarding a lost or misplaced gift.\nPlease make sure you present your unique gift voucher code by entering voucher <voucher-code>',
+        ('sing', 'song', 'jingle bells'): "It's Christmas\nJingle bells, jingle bells\nJingle all the way\nOh, what fun it is to ride\nIn a one horse open sleigh",
+        ('help', ): 'You can ask me about your presents or ask me to sing a song',
+        ('hi', 'hello'): 'Nice to meet you! My name is Santa!'
+}
+rnd = [
+        'Hohoho merry x-mas',
+        'You can make inquiries here about any lost of misplaced gifts',
+]
+
+@app.route("/message", methods = ["POST"])
+def msg():
+    msg = request.form.get('message', '')
+    if msg.lower().startswith('voucher '):
+        voucher = msg.split(' ',1)[1]
+        return jsonify(process(voucher))
+    for k,v in keywords.items():
+        for w in k:
+            if w in msg.lower():
+                return jsonify(v)
+    return jsonify(random.choice(rnd))
+
+@app.route("/source")
+def source():
+    return os.popen("source-highlight -i /app/main.py -o STDOUT").read()
+
+@app.route("/health")
+def health():
+    res = backend_api.post(data="{\"action\": \"health\"}")
+    if res.status_code == backend_api.STATUS_OK:
+        return jsonify(santa_status='UP', voucher_backend='UP')
+    return jsonify(santa_status='UP', voucher_backend='DOWN')
+
+# Santa is a micro-services kind of guy so the voucher
+# validation is running as a seperate service that we interact with
+# via POST requests
+def process(voucher):
+    res = backend_api.post(data="{\"action\": \"redeemVoucher\", \"voucherCode\": \"" + voucher + "\"}")
+    if res.status_code == backend_api.STATUS_OK:
+        return f"Good news, we found your lost present\n🎄📦🎁 {flag} 🎄📦🎁"
+    return f"Sorry, unfortunately we cannot help without a valid voucher\nAPI result: {res.data}"
+```
+
+Sweet!
+
+First we notice this is a flask app and the flag is saved in the backend environment. Flask utilizes an idea called `route` where if you hit the route via URL or a specific GET/POST request it will execute corresponding code. Let's examine the first route:
+
+```python
+@app.route("/")
+def index():
+    return render_template("chat.html")
+
+keywords = {
+        ('gift', 'present'): 'If you are contacting us regarding a lost or misplaced gift.\nPlease make sure you present your unique gift voucher code by entering voucher <voucher-code>',
+        ('sing', 'song', 'jingle bells'): "It's Christmas\nJingle bells, jingle bells\nJingle all the way\nOh, what fun it is to ride\nIn a one horse open sleigh",
+        ('help', ): 'You can ask me about your presents or ask me to sing a song',
+        ('hi', 'hello'): 'Nice to meet you! My name is Santa!'
+}
+rnd = [
+        'Hohoho merry x-mas',
+        'You can make inquiries here about any lost of misplaced gifts',
+]
+```
+
+Very simply this is indicating that at the base URL of the website the chat HTML template will be rendered and the values for `keywords`and `rnd` are stored. Not much to look into here. Let's look at the next route:
+
+```python
+@app.route("/message", methods = ["POST"])
+def msg():
+    msg = request.form.get('message', '')
+    if msg.lower().startswith('voucher '):
+        voucher = msg.split(' ',1)[1]
+        return jsonify(process(voucher))
+    for k,v in keywords.items():
+        for w in k:
+            if w in msg.lower():
+                return jsonify(v)
+    return jsonify(random.choice(rnd))
+```
+
+Now this is more interesting. There is an argument called `methods` indicating that this is a POST request. What this means is that I can **send** data to the route in order for something to happen. This particular code looks like it stores the data sent into a variable called `msg`. The if statement indicates that if this message starts with `voucher` then it will take the next word as the input to a different function. This "word" can be anything (numbers, letters, etc.). Otherwise it will simply choose a response based on a keyword or something random (refer to variables `keywords` and `rnd`). Ok so lets check out that `procces()` function since that looks suspicious.
+
+```python
+# Santa is a micro-services kind of guy so the voucher
+# validation is running as a seperate service that we interact with
+# via POST requests
+def process(voucher):
+    res = backend_api.post(data="{\"action\": \"redeemVoucher\", \"voucherCode\": \"" + voucher + "\"}")
+    if res.status_code == backend_api.STATUS_OK:
+        return f"Good news, we found your lost present\n🎄📦🎁 {flag} 🎄📦🎁"
+    return f"Sorry, unfortunately we cannot help without a valid voucher\nAPI result: {res.data}"
+```
+
+It looks like this code makes another post request to some backend api. It then checks if this post request is valid. If it is it returns our flag! Awesome! At this point I tried typing in `voucher AAAAAAAAAAAAA` into the chat to see what happens.
+
+![voucher_failed](./images/voucher_failed.png)
+
+Sadly it does not return the flag, but we clearly have found the way to access `process()`!
+
+Before I continue lets look at the other routes.
+
+```python
+@app.route("/source")
+def source():
+    return os.popen("source-highlight -i /app/main.py -o STDOUT").read()
+```
+
+This is what shows the backend code we are looking at. Note that this happens by adding `/source` to the URL.
+
+```python
+@app.route("/health")
+def health():
+    res = backend_api.post(data="{\"action\": \"health\"}")
+    if res.status_code == backend_api.STATUS_OK:
+        return jsonify(santa_status='UP', voucher_backend='UP')
+    return jsonify(santa_status='UP', voucher_backend='DOWN')
+```
+
+This lets us know if the backend is healthy (is it up?). If you go to https://santacustomersupport.challenge.hackazon.org/health the resulting page says: `{"santa_status":"UP","voucher_backend":"UP"}`. Cool!
+
+Now lets go back to figuring out how to get the flag. Since the wrong voucher still prints out the response data we can probably see if any error messages occur. Since the format of the post request data is `"{\"action\": \"redeemVoucher\", \"voucherCode\": \"" + voucher + "\"}"`, there is a good chance that sending `"`will cause an error. This is because it is not sanitized and what you type is injected directly into a POST request.
+
+![voucher_error](./images/voucher_error.png)
+
+I got an error! This indicates that injecting something in is possible. But how do I know what to send? Well first look at how the flag is decided. It isn't from a specific voucher code, but simply if the response of the post request is valid. We also know that `/health` seems to always return that the post request is OK. This lead to the idea that maybe I could somehow have it check for `/health` instead. It looks like health is checked when a POST request is made with the data as a JSON `\"action\": \"health\"`. So I then tried doing that with voucher.
+
+![voucher_health](./images/voucher_health.png)
+
+No error and no flag :(. I know that `"` should cause an error so maybe the `\` is escaping it so that nothing happens.
+
+![voucher_health_err](./images/voucher_health_err.png)
+
+Waiiiiiiiiit a moment. This looks really close to some valid JSON. Maybe I can pass in junk as voucher code and simply use the health action to make a valid POST request with a OK response. Each command is separated by a comma so I tried `garbagenobodycaresabout", "action": "health`. I don't include the quotes at the start and end since the variable is already surrounded by quotes.
+
+![voucher_flag](./images/voucher_flag.png)
+
+Yay! We got the flag!
+
+Flag: CTF{766e0ca1}
