@@ -91,13 +91,13 @@ to
 sHN = Dec("E2Q/yB8spwQ=", cap)
 ```
 
-Since that's what the if statement is looking for. After saving this updated macro to a new duplicate of the power point I simply of to run the presentation again. Now I get the following popup:
+Since that's what the if statement is looking for. After saving this updated macro to a new duplicate of the power point I simply have to run the presentation again. Now I get the following popup:
 
 ![maldoc_flag](./images/maldoc_flag.png)
 
 *Flag is: CTF{im_a_maldoc_pro}*
 
-It seems like the idea of the challenge was to introduce the ideas that macros can be harmful to your computer since they can just execute locally. I'm not sure if the authors were intending that it is solved via encryption but I am always a fan of the solution that requires less effort.
+It seems like the idea of the challenge was to introduce the ideas that macros can be harmful to your computer since they can just execute locally. I'm not sure if the authors were intending that it is solved by actually breaking the encryption but I am always a fan of the solution that requires less effort.
 
 ## Santa's Giftshopper
 
