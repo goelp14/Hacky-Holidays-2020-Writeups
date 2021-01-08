@@ -474,6 +474,16 @@ Disallow: /DataBackup.zip
 
 We download the zip file by going to `/DataBackup.zip`. After unzipping this file we see there is a file called flag.txt.
 
+For linux users you can do:
+
+```bash
+$  mkdir reindeerchall
+$  cd reindeerchall
+$  wget  <BASE-URL>/DataBackup.zip
+$  unzip DataBackup.zip
+$  cat flag.txt
+```
+
 Flag: CTF{5840e3cad9668343768ae1da4d1bd2fe}
 
 ### ADMIN (25 POINTS)
