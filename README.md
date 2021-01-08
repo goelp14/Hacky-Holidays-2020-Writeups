@@ -474,7 +474,7 @@ Disallow: /DataBackup.zip
 
 We download the zip file by going to `/DataBackup.zip`. After unzipping this file we see there is a file called flag.txt.
 
-For linux users you can do:
+For linux users you can do the same thing via terminal easily:
 
 ```bash
 $  mkdir reindeerchall
